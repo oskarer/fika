@@ -1,6 +1,6 @@
 var services = require('./services');
 
-services.constructSlackMessage()
+services.getNextWeek()
   .then(function (result) {
     console.log(result);
   })

@@ -4,7 +4,7 @@ var services = require('./services');
 module.exports = api;
 
 api.post('/fika', function () {
-  return services.constructSlackMessage()
+  return services.getNextWeek()
     .then(function (result) {
       return result;
     })
