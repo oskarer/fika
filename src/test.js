@@ -1,9 +1,9 @@
 import 'babel-polyfill';
-import { getNextWeek } from './services';
+import { getThisWeek } from './services';
 
 (async () => {
   try {
-    const result = await getNextWeek();
+    const result = await getThisWeek();
     console.log(result);
   } catch (error) {
     console.log(error.message);

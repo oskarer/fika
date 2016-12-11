@@ -1,9 +1,11 @@
 import rp from 'request-promise';
+import moment from 'moment';
 
-export async function getNextWeek() {
+export async function getThisWeek() {
   const schedule = await getScheduleFromGithub();
-  const nextWeek = schedule["2016-49"];
-  return formatSingleWeekMessage(nextWeek.fika, nextWeek.dependencies);
+  const friday = moment().locale('sv').weekday(4);
+  const nextWeek = schedule[`2016-${friday.week()}`];
+  return formatSingleWeekMessage(nextWeek.fika, nextWeek.dependencies, friday);
 }
 
 async function getScheduleFromGithub() {
@@ -12,10 +14,12 @@ async function getScheduleFromGithub() {
   return JSON.parse(result);
 }
 
-function formatSingleWeekMessage(fika, dependency) {
+function formatSingleWeekMessage(fika, dependency, friday) {
+  const weekNumber = moment().week();
+  const date = moment()
   return {
   	"response_type": "in_channel",
-    "text": "Schedule week 49, 2016-12-09.",
+    "text": `Schedule week ${friday.week()}, ${friday.format('YYYY-MM-DD')}.`,
   	"attachments": [
       {
         "text": "*Fika:* " + fika + "\n*Dependency check:* " + dependency,

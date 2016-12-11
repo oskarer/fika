@@ -1,11 +1,11 @@
 {
   "2016-49": { "fika": "Erik T",    "dependencies": "Daniel"  },
-  "2016-50": { "fika": "Daniel",    "dependencies": "Erik"    },
-  "2016-51": { "fika": "Florim",    "dependencies": "Florim"  },
-  "2017-01": { "fika": "Veronica",  "dependencies": "Linus"   },
-  "2017-02": { "fika": "Linus",     "dependencies": "Oskar"   },
-  "2017-03": { "fika": "Erik",      "dependencies": "Rickard" },
-  "2017-04": { "fika": "Oskar",     "dependencies": "Daniel"  },
-  "2017-05": { "fika": "Rickard",   "dependencies": "Erik"    },
-  "2017-06": { "fika": "Manish",    "dependencies": "Florim"  }
+  "2016-50": { "fika": "Erik T",    "dependencies": "Erik"    },
+  "2016-51": { "fika": "Daniel",    "dependencies": "Florim"  },
+  "2017-01": { "fika": "Florim",    "dependencies": "Linus"   },
+  "2017-02": { "fika": "Veronica",  "dependencies": "Oskar"   },
+  "2017-03": { "fika": "Linus",     "dependencies": "Rickard" },
+  "2017-04": { "fika": "Erik",      "dependencies": "Daniel"  },
+  "2017-05": { "fika": "Oskar",     "dependencies": "Erik"    },
+  "2017-06": { "fika": "Rickard",   "dependencies": "Florim"  }
 }
