@@ -13,10 +13,10 @@ $ npm install -g claudia
 The Lambda function fetches its data from a Google Spreadsheet, create one with
 the following format.
 
-|Year-week|Fika|Dependencies|
-|-|-|-|
-|2016-51|John|Mary|
-|2017-01|James|Charlotte|
+Year-week | Fika | Dependencies
+--------- | ---- | ------------
+2016-51|John|Mary
+2017-01|James|Charlotte
 
 Get the *name* of the sheet (*Sheet1* as default) and the *spreadsheet ID* from
 the URL; https://docs.google.com/spreadsheets/d/SPREADSHEETID/edit#gid=0
