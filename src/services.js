@@ -4,7 +4,9 @@ import moment from 'moment';
 export async function getThisWeek() {
   const schedule = await getScheduleFromGithub();
   const friday = moment().locale('sv').weekday(4);
-  const nextWeek = schedule[`2016-${friday.week()}`];
+  const year = moment().format('YYYY');
+  const week = moment().format('WW');
+  const nextWeek = schedule[`${year}-${week}`];
   return formatSingleWeekMessage(nextWeek.fika, nextWeek.dependencies, friday);
 }
 

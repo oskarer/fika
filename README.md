@@ -40,3 +40,9 @@ Then run the Claudia command which creates the function.
 ```
 claudia create --region AWS_REGION --api-module app
 ```
+
+### Update function
+Whenever you want to push local changes to AWS.
+```
+claudia update
+```
