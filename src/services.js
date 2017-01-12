@@ -7,8 +7,12 @@ export async function getThisWeek() {
   const friday = moment().locale('sv').weekday(4);
   const year = moment().format('YYYY');
   const week = moment().format('WW');
-  const nextWeek = schedule[`${year}-${week}`];
-  return formatSingleWeekMessage(nextWeek.fika, nextWeek.dependencies, friday);
+  return schedule[`${year}-${week}`];
+}
+
+export async function getAllWeeks() {
+  const schedule = await getScheduleFromGoogleSheets();
+  return schedule;
 }
 
 async function getScheduleFromGoogleSheets() {
@@ -27,10 +31,10 @@ async function getScheduleFromGoogleSheets() {
   return zipObject(weeks, persons);
 }
 
-function formatSingleWeekMessage(fika, dependency, friday) {
+export function formatSlackMessage(fika, dependency) {
   const { SPREADSHEET_ID } = process.env;
   const weekNumber = moment().week();
-  const date = moment()
+  const friday = moment().locale('sv').weekday(4);
   return {
   	"response_type": "in_channel",
     "text": `Schedule week ${friday.week()}, ${friday.format('YYYY-MM-DD')}. ` +
