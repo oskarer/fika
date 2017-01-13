@@ -6,7 +6,7 @@ var services = require('./lib/services');
 api.post('/fika', function () {
   return services.getThisWeek()
     .then(function (result) {
-      return services.formatSlackMessage(
+      return services.singleSlackMessage(
         result.fika,
         result.dependencies,
         result.year,
@@ -19,7 +19,7 @@ api.post('/fika', function () {
 api.post('/slack', function () {
   return services.getThisWeek()
     .then(function (result) {
-      return services.formatSlackMessage(
+      return services.singleSlackMessage(
         result.fika,
         result.dependencies,
         result.year,
