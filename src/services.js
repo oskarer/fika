@@ -3,19 +3,17 @@ import moment from 'moment';
 import { zipObject } from 'lodash';
 
 export async function getThisWeek() {
-  const schedule = await getScheduleFromGoogleSheets();
-  const friday = moment().locale('sv').weekday(4);
-  const year = moment().format('YYYY');
-  const week = moment().format('WW');
-  return schedule[`${year}-${week}`];
+  const schedule = await getSchedule();
+  const year = moment().year();
+  const week = moment().isoWeek();
+  return schedule.find((entry) => entry.year === year && entry.week === week);
 }
 
 export async function getAllWeeks() {
-  const schedule = await getScheduleFromGoogleSheets();
-  return schedule;
+  return await getSchedule();
 }
 
-async function getScheduleFromGoogleSheets() {
+export async function getScheduleFromGoogleSheets() {
   const { SPREADSHEET_ID, GOOGLE_API_KEY, SHEET_NAME } = process.env;
   const response = await rp('https://sheets.googleapis.com/v4/spreadsheets/' +
     `${SPREADSHEET_ID}/values:batchGet?ranges=${SHEET_NAME}!A2:C` +
@@ -23,26 +21,64 @@ async function getScheduleFromGoogleSheets() {
     `&majorDimension=ROWS&key=${GOOGLE_API_KEY}`);
   const result = JSON.parse(response);
 
-  const weeks = result.valueRanges[0].values.map((entry) => entry[0]);
-  const persons = result.valueRanges[0].values.map((entry) => ({
+  return result.valueRanges[0].values.map((entry, week) => ({
+    week: parseInt(entry[0].slice(-2)),
+    year: parseInt(entry[0].slice(0, 4)),
     fika: entry[1],
     dependencies: entry[2],
-  }));
-  return zipObject(weeks, persons);
+  }))
 }
 
-export function formatSlackMessage(fika, dependency) {
+export async function getSlackUsers() {
+  const { SLACK_TOKEN } = process.env;
+  const response = await rp('https://slack.com/api/users.list?token=' +
+    `${SLACK_TOKEN}&presence=0`);
+  const result = JSON.parse(response);
+  const filtered = result.members.map((member) => ({
+    name: member.name,
+    real_name: member.real_name || member.name,
+    image_48: member.profile.image_48,
+    image_192: member.profile.image_192,
+  }))
+  return filtered;
+}
+
+export async function getSchedule() {
+  const [schedule, users] = await Promise.all([
+    getScheduleFromGoogleSheets(),
+    getSlackUsers(),
+  ])
+  const year = moment().year();
+  const week = moment().isoWeek();
+  const filtered = schedule.filter((entry) =>
+    entry.year >= year && entry.week >= week);
+
+  const extended = filtered.map((entry) => {
+    const fika = users.find((user) => user.name === entry.fika);
+    const dependencies = users.find((user) => user.name === entry.dependencies);
+    return {
+      week: entry.week,
+      year: entry.year,
+      fika,
+      dependencies
+    }
+  })
+  return extended;
+}
+
+export function singleSlackMessage(fika, dependencies, year, week) {
   const { SPREADSHEET_ID } = process.env;
-  const weekNumber = moment().week();
-  const friday = moment().locale('sv').weekday(4);
+  const date = moment(`${year}W${week < 10 ? '0' + week : week}`);
+  const friday = date.locale('sv').weekday(4);
   return {
   	"response_type": "in_channel",
-    "text": `Schedule week ${friday.week()}, ${friday.format('YYYY-MM-DD')}. ` +
+    "text": `Schedule week ${date.week()}, ${friday.format('YYYY-MM-DD')}. ` +
       `Edit schedule <https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}`+
       '/edit|here>',
   	"attachments": [
       {
-        "text": "*Fika:* " + fika + "\n*Dependency check:* " + dependency,
+        "text": `*Fika:* ${fika.real_name}`+
+          `\n*Dependency check:* ${dependencies.real_name}`,
         "mrkdwn_in": ["text"]
       }
     ]
