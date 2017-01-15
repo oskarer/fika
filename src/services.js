@@ -15,12 +15,15 @@ export async function getAllWeeks() {
 
 export async function getScheduleFromGoogleSheets() {
   const { SPREADSHEET_ID, GOOGLE_API_KEY, SHEET_NAME } = process.env;
-  const response = await rp('https://sheets.googleapis.com/v4/spreadsheets/' +
+  const url = 'https://sheets.googleapis.com/v4/spreadsheets/' +
     `${SPREADSHEET_ID}/values:batchGet?ranges=${SHEET_NAME}!A2:C` +
     '&valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING' +
-    `&majorDimension=ROWS&key=${GOOGLE_API_KEY}`);
+    `&majorDimension=ROWS&key=${GOOGLE_API_KEY}`;
+  console.log('Google Spreadsheet URL:', url);
+  const response = await rp(url);
   const result = JSON.parse(response);
 
+  console.log(`Got ${result.valueRanges[0].values.length} spreadsheet rows.`);
   return result.valueRanges[0].values.map((entry, week) => ({
     week: parseInt(entry[0].slice(-2)),
     year: parseInt(entry[0].slice(0, 4)),
@@ -48,21 +51,26 @@ export async function getSchedule() {
     getScheduleFromGoogleSheets(),
     getSlackUsers(),
   ])
-  const year = moment().year();
-  const week = moment().isoWeek();
-  const filtered = schedule.filter((entry) =>
-    entry.year >= year && entry.week >= week);
+  const currentYear = moment().year();
+  const currentWeek = moment().isoWeek();
+  const filtered = schedule.filter(({ year, week }) =>
+    year >= currentYear && week >= currentWeek);
 
   const extended = filtered.map((entry) => {
+    const date = moment(
+      `${entry.year}W${entry.week < 10 ? '0' + entry.week : entry.week}`);
+    const friday = date.locale('sv').weekday(4);
     const fika = users.find((user) => user.name === entry.fika);
     const dependencies = users.find((user) => user.name === entry.dependencies);
     return {
       week: entry.week,
       year: entry.year,
+      friday: friday.format('YYYY-MM-DD'),
       fika,
       dependencies
     }
-  })
+  });
+
   return extended;
 }
 

@@ -36,6 +36,6 @@ import * as services from './services';
       console.log(error.message);
     }
   }
-  testSingleSlackMessage();
+  testGetSchedule();
 
 })();
